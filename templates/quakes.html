@@ -1,0 +1,61 @@
+<html>
+  <head>
+    <style>
+      body {
+        font-family: "Open Sans", sans-serif;
+        font-size: 14px;
+      }
+      .quake {
+        border: 1px solid black;
+        margin: -1;
+        width: 400px;
+      }
+      .mag {
+        float: left;
+        font-size: 32px;
+        margin: 15px;
+      }
+      #map {
+        float: right;
+        height: 500px;
+        width: 800px;
+      }
+    </style>
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+  </head>
+<body>
+
+  <div id="map"></div>
+
+  <div id="quakes">
+    {% for quake in quakes if "properties" in quake %}
+      <div class="quake" onclick="marker({{quake['geometry']['coordinates']}})">
+        <div class="mag">{{ "{0:.1f}".format(quake["properties"]["mag"]) }}</div>
+        <div class="text">
+          <p>{{ quake["time"].strftime("%b %m, %Y %I:%M %p") }}</p>
+          <p>{{ quake["properties"]["place"] }}</p>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <script>
+    var map = L.map('map').setView([0, 0], 2);
+    map.addLayer(L.tileLayer(
+      "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
+      {attribution: "<a href=\"http://osm.org/copyright\">OpenStreetMap</a>"}
+    ));
+    var markers = L.layerGroup()
+    function marker(pos) {
+      var point = L.latLng(pos[1], pos[0]);
+      markers.clearLayers();
+      markers.addLayer(L.circleMarker(point));
+      markers.addTo(map);
+      map.setView(point, 4, {animate: true});
+    }
+  </script>
+
+</body>
+</html>
